@@ -80,7 +80,7 @@
     <div id="setup-panel" class="panel active-panel">
         <h2>Part 1: Laboratory Setup Verification</h2>
         <div class="setup-description">
-            <p><strong>Goal:</strong> Prove why the pancreas secretes fresh amylase after food leaves the stomach (pH 2) and enters the small intestine (pH 9).</p>
+            <p><strong>Goal:</strong> To investigate the denaturation of salivary amylase in gastric conditions (pH 2) and evaluate the physiological necessity of pancreatic amylase secretion for the resumption of carbohydrate digestion in the duodenum.</p>
             <p><strong>Task:</strong> Set up the correct test conditions below. Tick the exact boxes needed for each tube. Do not add extra liquids that don't belong!</p>
         </div>
         
