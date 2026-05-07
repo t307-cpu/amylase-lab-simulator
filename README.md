@@ -29,7 +29,7 @@
         .setup-controls { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;}
         #green-light { display: none; color: #27ae60; font-weight: bold; font-size: 1.3em; margin-top: 15px; padding: 10px; background-color: #e8f5e9; border-radius: 5px;}
 
-        /* Review Phase (New) Styles */
+        /* Review Phase Styles */
         .volume-list { background: #fff; padding: 10px; border-radius: 5px; text-align: left; font-size: 0.9em; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #ecf0f1; margin-top: 10px;}
         .volume-list li { margin-bottom: 5px; color: #2c3e50; }
         .quiz-container { background: #fff3cd; border: 1px solid #ffeeba; padding: 20px; border-radius: 8px; margin-top: 20px; color: #856404; }
@@ -37,7 +37,7 @@
         .quiz-option { margin-bottom: 10px; display: flex; align-items: flex-start; }
         .quiz-option input { margin-top: 4px; margin-right: 10px; cursor: pointer;}
         .quiz-option label { cursor: pointer; font-weight: 500;}
-        #quiz-feedback { margin-top: 15px; font-weight: bold; font-size: 1.1em; display: none; }
+        .quiz-feedback { margin-top: 15px; font-weight: bold; font-size: 1.1em; display: none; }
 
         /* Experiment Phase Styles */
         .instructions { background: #e8f4f8; border-left: 5px solid #17a2b8; padding: 15px; margin-bottom: 20px; font-weight: bold; font-size: 1.1em; color: #0c5460; line-height: 1.4;}
@@ -46,6 +46,9 @@
         button:hover { background-color: #2980b9; }
         button:disabled { background-color: #b0bec5; cursor: not-allowed; }
         
+        #btn-part4 { display: none; background-color: #27ae60; font-size: 1.1em; padding: 12px 20px;}
+        #btn-part4:hover { background-color: #2ecc71; }
+
         select { padding: 10px; border-radius: 5px; border: 2px solid #3498db; background: white; font-size: 0.95em;}
         select:disabled { border-color: #b0bec5; }
 
@@ -205,7 +208,7 @@
             <div style="margin-top: 20px;">
                 <button onclick="checkQuiz()">Submit Answer</button>
             </div>
-            <div id="quiz-feedback"></div>
+            <div id="quiz-feedback" class="quiz-feedback"></div>
         </div>
     </div>
 
@@ -246,14 +249,69 @@
             </select>
             <button id="btn-incubate" onclick="incubate()" disabled>3. Incubate Tube (Wait 5 Mins)</button>
             <button id="btn-mix" onclick="addStarchAndStart()" disabled>4. Add Starch & Start the Timer</button>
-            <button id="btn-test" onclick="takeSample()" disabled>5. Transfer 1 Drop to Plate at 1-minute Intervals</button>
-            <button id="btn-reset" onclick="resetPlate()" style="background-color: #e74c3c;">Reset</button>
+            <button id="btn-test" onclick="takeSample()" disabled>5. Transfer 1 Drop</button>
+            <button id="btn-reset" onclick="resetPlate()" style="background-color: #e74c3c;">Reset Plate</button>
+            <button id="btn-part4" onclick="proceedToPart4()">Proceed to Part 4 ➔</button>
         </div>
 
         <div class="timer" id="timer-display">Wait: 0 min</div>
 
         <div class="spot-plate" id="spot-plate">
+        </div>
+    </div>
+
+    <div id="conclusion-panel" class="panel">
+        <h2>Part 4: Conclusion & Analysis</h2>
+        <div class="setup-description">
+            You have successfully completed all four test conditions. Based on your observations of the iodine color changes, answer the following questions to complete the lab.
+        </div>
+        
+        <div class="quiz-container">
+            <h3>Question 1</h3>
+            <p>Based on your spot plate results, which test tube demonstrated the highest amylase activity (broke down starch the fastest)?</p>
+            <div class="quiz-option">
+                <input type="radio" id="q4-1a" name="q1-final" value="wrong1">
+                <label for="q4-1a">Test Tube 1 (pH 2 - Stomach conditions)</label>
             </div>
+            <div class="quiz-option">
+                <input type="radio" id="q4-1b" name="q1-final" value="correct">
+                <label for="q4-1b">Test Tube 2 (pH 7 - Mouth cavity conditions)</label>
+            </div>
+            <div class="quiz-option">
+                <input type="radio" id="q4-1c" name="q1-final" value="wrong2">
+                <label for="q4-1c">Test Tube 3 (pH 9 - Small intestine conditions)</label>
+            </div>
+            <div class="quiz-option">
+                <input type="radio" id="q4-1d" name="q1-final" value="wrong3">
+                <label for="q4-1d">Control Tube</label>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #ffeeba; margin: 20px 0;">
+
+            <h3>Question 2</h3>
+            <p>Salivary amylase begins carbohydrate digestion in the mouth. Based on what happened in Test Tube 1, what is the physiological reason that <strong>pancreatic amylase</strong> must be secreted into the duodenum (small intestine) to resume digestion?</p>
+            <div class="quiz-option">
+                <input type="radio" id="q4-2a" name="q2-final" value="wrong1">
+                <label for="q4-2a">Because starch cannot be fully digested in a single step and requires two different types of enzymes working simultaneously.</label>
+            </div>
+            <div class="quiz-option">
+                <input type="radio" id="q4-2b" name="q2-final" value="correct">
+                <label for="q4-2b">Because salivary amylase is denatured by the highly acidic environment of the stomach, requiring a fresh enzyme source once the food enters the neutralized small intestine.</label>
+            </div>
+            <div class="quiz-option">
+                <input type="radio" id="q4-2c" name="q2-final" value="wrong2">
+                <label for="q4-2c">Because the small intestine can only absorb carbohydrates that have been digested specifically by pancreatic enzymes, not salivary ones.</label>
+            </div>
+            <div class="quiz-option">
+                <input type="radio" id="q4-2d" name="q2-final" value="wrong3">
+                <label for="q4-2d">Because salivary amylase only works on cooked starch, while pancreatic amylase is needed to digest raw starch.</label>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button onclick="checkPart4Quiz()">Submit Final Answers</button>
+            </div>
+            <div id="part4-feedback" class="quiz-feedback"></div>
+        </div>
     </div>
 </div>
 
@@ -262,6 +320,9 @@
     let selectedTube = "";
     let wellsUsedCount = 0;
     const maxWells = 6;
+    
+    // Track which tubes have been successfully tested to completion
+    let completedTubes = new Set();
 
     // Generate Spot Plate UI 
     const spotPlateDiv = document.getElementById('spot-plate');
@@ -295,14 +356,14 @@
             document.getElementById('btn-verify').disabled = true;
             setTimeout(() => {
                 document.getElementById('setup-panel').classList.remove('active-panel');
-                document.getElementById('review-panel').classList.add('active-panel'); // Go to new panel
+                document.getElementById('review-panel').classList.add('active-panel');
             }, 2500);
         } else {
             alert("Errors found in your setup:\n\n" + errors.join("\n\n") + "\n\nPlease fix these and try again.");
         }
     }
 
-    // Phase 1.5 Logic: Quiz
+    // Phase 2 Logic: Quiz
     function checkQuiz() {
         const options = document.getElementsByName('volume-quiz');
         let selectedValue = "";
@@ -417,12 +478,23 @@
             updateInstruction(`Minute ${timerMinutes - 1} tested. Click 'Transfer 1 Drop' to advance time 1 minute and test the next drop.`);
         } else {
             document.getElementById('btn-test').disabled = true;
+            completedTubes.add(selectedTube); // Mark this tube as done
+            
+            let resultText = "";
             if(selectedTube === 'ph7'){
-               updateInstruction("Results: The starch is gone! Amylase works perfectly at pH 7. Reset the plate to test the other tubes.");
+               resultText = "Results: The starch is gone! Amylase works perfectly at pH 7.";
             } else if (selectedTube === 'ph2'){
-               updateInstruction("Results: At pH 2 (stomach acid), amylase is denatured. Starch stays present. Reset and test another tube.");
+               resultText = "Results: At pH 2 (stomach acid), amylase is denatured. Starch stays present.";
             } else {
-               updateInstruction("Experiment complete for this tube. Reset the plate to test another.");
+               resultText = "Results: Experiment complete for this tube.";
+            }
+
+            // Check if they finished all 4 tubes
+            if (completedTubes.size >= 4) {
+                updateInstruction(resultText + " You have successfully tested all 4 tubes! Click 'Proceed to Part 4' below to analyze your data.");
+                document.getElementById('btn-part4').style.display = 'inline-block';
+            } else {
+                updateInstruction(resultText + ` (${completedTubes.size}/4 completed). Reset the plate to test another tube.`);
             }
         }
     }
@@ -440,7 +512,41 @@
         document.getElementById('timer-display').innerText = "Wait: 0 min";
         timerMinutes = 0;
         wellsUsedCount = 0;
-        updateInstruction("Step 1: First, add drops of Iodine solution to all the wells on your spot plate.");
+        
+        if (completedTubes.size >= 4) {
+            updateInstruction("All tubes tested! Click 'Proceed to Part 4' to move on.");
+        } else {
+            updateInstruction("Step 1: First, add drops of Iodine solution to all the wells on your spot plate.");
+        }
+    }
+
+    // Phase 4 Transition
+    function proceedToPart4() {
+        document.getElementById('experiment-panel').classList.remove('active-panel');
+        document.getElementById('conclusion-panel').classList.add('active-panel');
+    }
+
+    // Phase 4 Logic: Final Quiz
+    function checkPart4Quiz() {
+        const q1 = document.querySelector('input[name="q1-final"]:checked');
+        const q2 = document.querySelector('input[name="q2-final"]:checked');
+        const feedback = document.getElementById('part4-feedback');
+        
+        feedback.style.display = 'block';
+
+        if (!q1 || !q2) {
+            feedback.style.color = "#e74c3c";
+            feedback.innerHTML = "Please answer both questions before submitting.";
+            return;
+        }
+
+        if (q1.value === 'correct' && q2.value === 'correct') {
+            feedback.style.color = "#27ae60";
+            feedback.innerHTML = "✅ Excellent work! You correctly identified that amylase works best at a neutral pH (7), and that because stomach acid denatures the enzyme, a fresh supply from the pancreas is biologically necessary in the small intestine.";
+        } else {
+            feedback.style.color = "#e74c3c";
+            feedback.innerHTML = "❌ Not quite. Review your lab results to see which pH cleared the starch the fastest, and think about what happens to the physical structure of an enzyme when it is dropped into stomach acid (pH 2).";
+        }
     }
 </script>
 
