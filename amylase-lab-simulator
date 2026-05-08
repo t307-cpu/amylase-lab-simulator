@@ -90,14 +90,13 @@ button:disabled { background-color: #b0bec5; cursor: not-allowed; }
 
 .main-tube-area { display: flex; flex-direction: column; align-items: center; border: 3px dashed transparent; padding: 10px; border-radius: 10px; transition: 0.3s;}
 
-/* ===== FIX: wider test tube so labels are never clipped ===== */
 .main-tube {
   width: 110px;
   height: 160px;
   border: 3px solid #34495e;
   border-top: none;
   border-radius: 0 0 55px 55px;
-  background: linear-gradient(to top, #e8f4f8 20%, white 20%);
+  background: white;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -284,13 +283,14 @@ button:disabled { background-color: #b0bec5; cursor: not-allowed; }
       <div class="draggable-item" id="item-ph7" draggable="true" ondragstart="drag(event)">🟢 pH 7 Buffer</div>
       <div class="draggable-item" id="item-ph9" draggable="true" ondragstart="drag(event)">🔵 pH 9 Buffer</div>
       <div class="draggable-item" id="item-control" draggable="true" ondragstart="drag(event)">⚪ Distilled Water</div>
+      <div class="draggable-item" id="item-amylase" draggable="false" ondragstart="drag(event)">🧫 Amylase Solution</div>
       <div class="draggable-item" id="item-starch" draggable="false" ondragstart="drag(event)">🥔 Starch Solution</div>
       <div class="draggable-item" id="item-Reaction Mixture" draggable="false" ondragstart="drag(event)">🖊 Reaction Mixture</div>
     </div>
     <div class="workspace">
       <div class="spot-plate" id="spot-plate" ondrop="dropPlate(event)" ondragover="allowDrop(event)"></div>
       <div class="main-tube-area" id="tube-area" ondrop="dropTube(event)" ondragover="allowDrop(event)">
-        <div class="main-tube" id="reaction-tube">🧪<br>Amylase<br>Only</div>
+        <div class="main-tube" id="reaction-tube">🧪<br>Empty<br>Tube</div>
         <button id="btn-incubate" onclick="incubate()" disabled style="margin-top: 15px;">Incubate (Wait 5m)</button>
       </div>
     </div>
@@ -356,6 +356,14 @@ let wellsUsedCount = 0;
 const maxWells = 6;
 let completedTubes = new Set();
 let labState = "ADD_IODINE";
+
+// Helper: convert tube id (e.g. "ph7") to nicely formatted label (e.g. "pH 7")
+function formatPHLabel(tubeId) {
+  if (tubeId.startsWith("ph")) {
+    return "pH " + tubeId.substring(2);
+  }
+  return tubeId;
+}
 
 function init() {
   const spotPlateDiv = document.getElementById('spot-plate');
@@ -550,6 +558,9 @@ function highlightDraggables() {
       if(!completedTubes.has(val)) setDraggable(id, true);
     });
     document.getElementById('tube-area').classList.add('target-glow');
+  } else if (labState === "ADD_AMYLASE") {
+    setDraggable('item-amylase', true);
+    document.getElementById('tube-area').classList.add('target-glow');
   } else if (labState === "ADD_STARCH") {
     setDraggable('item-starch', true);
     document.getElementById('tube-area').classList.add('target-glow');
@@ -579,7 +590,7 @@ function dropPlate(ev) {
       document.getElementById(`well-${i}`).className = 'well colour-iodine';
     }
     labState = "ADD_PH";
-    updateInstruction("Step 2: Drag a pH buffer (or Distilled Water for Control) into the Main Tube.");
+    updateInstruction("Step 2: Drag a pH buffer (pH 2 / 7 / 9) OR Distilled Water (for the Control) into the Main Tube.");
     highlightDraggables();
   }
   else if (data === "item-Reaction Mixture" && labState === "TESTING") {
@@ -590,20 +601,44 @@ function dropPlate(ev) {
 function dropTube(ev) {
   ev.preventDefault();
   let data = ev.dataTransfer.getData("text");
+
+  // --- Step 2: Add pH buffer OR Distilled Water ---
   if (data.startsWith("item-ph") || data === "item-control") {
     if (labState === "ADD_PH") {
       selectedTube = data.replace("item-", "");
-      let tubeLabel = data === "item-control" ? "Water" : selectedTube.toUpperCase();
-      document.getElementById('reaction-tube').innerHTML = `🧪<br>Amylase<br>+<br>${tubeLabel}`;
-      labState = "INCUBATE";
-      updateInstruction("Step 3: Click the 'Incubate' button below the tube to wait 5 minutes.");
-      highlightDraggables();
-      document.getElementById('btn-incubate').disabled = false;
-      document.getElementById('btn-incubate').classList.add('item-glow');
+
+      if (selectedTube === "control") {
+        // Control tube: NO amylase, NO incubation needed
+        document.getElementById('reaction-tube').innerHTML = `🧪<br>Distilled<br>Water`;
+        document.getElementById('reaction-tube').style.background = "linear-gradient(to top, #e0f7fa 40%, white 40%)";
+        labState = "ADD_STARCH";
+        updateInstruction("Step 3 (Control): No amylase is needed for the control tube! Drag the Starch Solution directly to the Main Tube.");
+        highlightDraggables();
+      } else {
+        // pH buffers: next step is to add amylase
+        let tubeLabel = formatPHLabel(selectedTube) + "<br>Buffer";
+        document.getElementById('reaction-tube').innerHTML = `🧪<br>${tubeLabel}`;
+        document.getElementById('reaction-tube').style.background = "linear-gradient(to top, #e0f7fa 40%, white 40%)";
+        labState = "ADD_AMYLASE";
+        updateInstruction("Step 3: Now drag the Amylase Solution into the Main Tube to add the enzyme.");
+        highlightDraggables();
+      }
     }
   }
+  // --- Step 3: Add Amylase (only for pH tubes) ---
+  else if (data === "item-amylase" && labState === "ADD_AMYLASE") {
+    let tubeLabel = formatPHLabel(selectedTube) + "<br>+<br>Amylase";
+    document.getElementById('reaction-tube').innerHTML = `🧪<br>${tubeLabel}`;
+    document.getElementById('reaction-tube').style.background = "linear-gradient(to top, #c8e6c9 50%, white 50%)";
+    labState = "INCUBATE";
+    updateInstruction("Step 4: Click the 'Incubate' button below the tube to equilibrate the enzyme for 5 minutes.");
+    highlightDraggables();
+    document.getElementById('btn-incubate').disabled = false;
+    document.getElementById('btn-incubate').classList.add('item-glow');
+  }
+  // --- Step 4/5: Add Starch ---
   else if (data === "item-starch" && labState === "ADD_STARCH") {
-    document.getElementById('reaction-tube').style.background = "linear-gradient(to top, #b2ebf2 50%, white 50%)";
+    document.getElementById('reaction-tube').style.background = "linear-gradient(to top, #b2ebf2 60%, white 60%)";
     document.getElementById('reaction-tube').innerHTML = `🧪<br>Reaction<br>Mixture`;
     labState = "TESTING";
     timerMinutes = 0;
@@ -625,7 +660,7 @@ function incubate() {
       clearInterval(interval);
       document.getElementById('timer-display').innerText = "Wait: 5m Done";
       labState = "ADD_STARCH";
-      updateInstruction("Step 4: Incubation complete! Drag the Starch Solution to the Main Tube to start the reaction.");
+      updateInstruction("Step 4 Complete: Incubation done! Drag the Starch Solution to the Main Tube to start the reaction.");
       highlightDraggables();
     }
   }, 600);
@@ -660,7 +695,8 @@ function takeSample() {
     let resultText = "";
     if(selectedTube === 'ph7') resultText = "Results: The starch is gone! Amylase works perfectly at pH 7.";
     else if (selectedTube === 'ph2') resultText = "Results: At pH 2 (stomach acid), amylase is denatured. Starch remains.";
-    else resultText = "Results: Experiment complete for this tube.";
+    else if (selectedTube === 'ph9') resultText = "Results: At pH 9, amylase works but more slowly than at pH 7.";
+    else if (selectedTube === 'control') resultText = "Results: No amylase added, so starch remains throughout (as expected for the control).";
 
     setDraggable('item-Reaction Mixture', false);
     document.getElementById('spot-plate').classList.remove('target-glow');
@@ -679,8 +715,8 @@ function resetBench() {
   for (let i = 0; i < maxWells; i++) {
     document.getElementById(`well-${i}`).className = 'well colour-empty';
   }
-  document.getElementById('reaction-tube').innerHTML = "🧪<br>Amylase<br>Only";
-  document.getElementById('reaction-tube').style.background = "linear-gradient(to top, #e8f4f8 20%, white 20%)";
+  document.getElementById('reaction-tube').innerHTML = "🧪<br>Empty<br>Tube";
+  document.getElementById('reaction-tube').style.background = "white";
   document.getElementById('btn-reset').style.display = 'none';
   document.getElementById('timer-display').innerText = "Wait: 0 min";
   timerMinutes = 0;
