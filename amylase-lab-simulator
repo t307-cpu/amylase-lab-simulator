@@ -608,12 +608,15 @@ function dropTube(ev) {
       selectedTube = data.replace("item-", "");
 
       if (selectedTube === "control") {
-        // Control tube: NO amylase, NO incubation needed
+        // Control tube: NO amylase added, but STILL needs to wait 5 minutes
+        // to match the timing/procedure of the other set-ups (fair test)
         document.getElementById('reaction-tube').innerHTML = `🧪<br>Distilled<br>Water`;
         document.getElementById('reaction-tube').style.background = "linear-gradient(to top, #e0f7fa 40%, white 40%)";
-        labState = "ADD_STARCH";
-        updateInstruction("Step 3 (Control): No amylase is needed for the control tube! Drag the Starch Solution directly to the Main Tube.");
+        labState = "INCUBATE";
+        updateInstruction("Step 3 (Control): No amylase is added to the control tube. However, to keep the procedure identical to the other set-ups, click 'Incubate' and wait the same 5 minutes before adding starch.");
         highlightDraggables();
+        document.getElementById('btn-incubate').disabled = false;
+        document.getElementById('btn-incubate').classList.add('item-glow');
       } else {
         // pH buffers: next step is to add amylase
         let tubeLabel = formatPHLabel(selectedTube) + "<br>Buffer";
