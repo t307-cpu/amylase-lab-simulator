@@ -47,7 +47,6 @@ button:disabled { background-color: #b0bec5; cursor: not-allowed; }
 #btn-part4 { display: none; background-color: #27ae60; font-size: 1.1em; padding: 12px 20px;}
 #btn-part4:hover { background-color: #2ecc71; }
 
-/* ===== FIX 1: Timer sizing ===== */
 .timer {
   font-size: 1.8em;
   font-family: monospace;
@@ -69,7 +68,6 @@ button:disabled { background-color: #b0bec5; cursor: not-allowed; }
 .shelf { display: flex; justify-content: space-around; background: #ecf0f1; padding: 15px; border-radius: 8px; flex-wrap: wrap; gap: 10px; border-bottom: 4px solid #95a5a6;}
 .workspace { display: flex; justify-content: space-around; align-items: flex-end; padding-top: 10px; flex-wrap: wrap; gap: 15px;}
 
-/* ===== FIX 2: touch-action so iPad doesn't scroll while dragging ===== */
 .draggable-item {
   padding: 10px 15px;
   background: white;
@@ -91,7 +89,29 @@ button:disabled { background-color: #b0bec5; cursor: not-allowed; }
 .item-glow { box-shadow: 0 0 12px 4px #3498db !important; border-color: #2980b9 !important; }
 
 .main-tube-area { display: flex; flex-direction: column; align-items: center; border: 3px dashed transparent; padding: 10px; border-radius: 10px; transition: 0.3s;}
-.main-tube { width: 50px; height: 120px; border: 3px solid #34495e; border-top: none; border-radius: 0 0 25px 25px; background: linear-gradient(to top, #e8f4f8 20%, white 20%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.8em; text-align: center; line-height: 1.2; transition: background 0.5s;}
+
+/* ===== FIX: wider test tube so labels are never clipped ===== */
+.main-tube {
+  width: 110px;
+  height: 160px;
+  border: 3px solid #34495e;
+  border-top: none;
+  border-radius: 0 0 55px 55px;
+  background: linear-gradient(to top, #e8f4f8 20%, white 20%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 10px 8px;
+  font-weight: bold;
+  color: #2c3e50;
+  font-size: 0.95em;
+  text-align: center;
+  line-height: 1.3;
+  transition: background 0.5s;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
 .spot-plate { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; background: #ecf0f1; padding: 20px; border-radius: 10px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); border: 3px dashed transparent; transition: 0.3s;}
 .well-container { text-align: center; }
 .well { width: 50px; height: 50px; background: white; border-radius: 50%; border: 3px solid #bdc3c7; margin: 0 auto 8px auto; transition: background-color 0.5s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);}
@@ -102,7 +122,6 @@ button:disabled { background-color: #b0bec5; cursor: not-allowed; }
 .colour-starch { background-color: #1a1a2e; border-color: #0c0c1a;}
 .colour-partial { background-color: #5d4037; border-color: #4e342e;}
 
-/* Touch-drag ghost */
 .touch-ghost {
   position: fixed !important;
   pointer-events: none !important;
@@ -327,12 +346,10 @@ button:disabled { background-color: #b0bec5; cursor: not-allowed; }
 </div>
 
 <script>
-// Global Student Data
 let studentName = "";
 let studentClass = "";
 let studentNumber = "";
 
-// Global Lab Data
 let timerMinutes = 0;
 let selectedTube = "";
 let wellsUsedCount = 0;
@@ -353,7 +370,6 @@ function init() {
   attachTouchHandlers();
 }
 
-/* ========= FIX 2: TOUCH SUPPORT FOR iPad ========= */
 let touchDraggedId = null;
 let touchGhost = null;
 let touchOffsetX = 0;
@@ -393,14 +409,6 @@ function handleTouchMove(e) {
   const touch = e.touches[0];
   touchGhost.style.left = (touch.clientX - touchOffsetX) + 'px';
   touchGhost.style.top = (touch.clientY - touchOffsetY) + 'px';
-
-  // Highlight hover target
-  touchGhost.style.display = 'none';
-  const overEl = document.elementFromPoint(touch.clientX, touch.clientY);
-  touchGhost.style.display = '';
-
-  document.getElementById('spot-plate').classList.remove('hover-target');
-  document.getElementById('tube-area').classList.remove('hover-target');
 }
 
 function handleTouchEnd(e) {
@@ -443,7 +451,6 @@ function cleanupTouch() {
   touchGhost = null;
   touchDraggedId = null;
 }
-/* ========= END TOUCH SUPPORT ========= */
 
 init();
 
